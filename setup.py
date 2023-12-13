@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'opencv-ar'
+package_name = 'ar'
 
 setup(
     name=package_name,
@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'ar = opencv-ar.ar:main'
+            'ar = ar.ar:main'
         ],
     },
 )
