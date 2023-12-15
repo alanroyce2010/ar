@@ -29,7 +29,7 @@ import cv2
 import numpy as np
 
 
-def augment(img, obj, projection, template, scale = 100):
+def augment(img, obj, projection, template, scale = 30):
     # takes the captureed image, object to augment, and transformation matrix  
     #adjust scale to make the object smaller or bigger, 4 works for the fox
 
@@ -130,8 +130,8 @@ class three_d_object:
         # for i in range(len(all_us) - 1):
         #     texture = cv2.line(texture, (all_us[i], all_vs[i]), (all_us[i + 1], all_vs[i + 1]), (0,0,255), 2)
         #     pass    
-        print(u)
-        print(v)
+        #print(u)
+        #print(v)
         col = np.uint8(texture[v, u])
         col = [int(a) for a in col]
         col = tuple(col)

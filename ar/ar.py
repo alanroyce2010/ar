@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
+from std_msgs.msg import Header
 
 import cv2
 from cv_bridge import CvBridge
@@ -12,13 +13,19 @@ import sys
 import aruco_module as aruco 
 from my_constants import *
 from utils import get_extended_RT
+
 arg = sys.argv[1]
+arg1 = sys.argv[2]
+
 class ARNode(Node):
 	def __init__(self):
-		super().__init__('ar_node')
+		super().__init__('ar_node_'+arg1)
 		self.subscription = self.create_subscription(Image, arg, self.image, 10)
 		self.publisher_ = self.create_publisher(Image, arg + '/ar', 10)
 		self.bridge = CvBridge()
+		self.header = Header()
+		self.header.frame_id = 'zed2i_'+arg1+'_camera_optical_frame'
+		
 
 	def image(self, msg):
 		self.img =cv2.cvtColor(self.bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough"), cv2.COLOR_RGBA2RGB)
@@ -46,15 +53,13 @@ class ARNode(Node):
 		h_canvas = h2
 		w_canvas = w2
 
-		
-
 		canvas = np.zeros((h_canvas, w_canvas, 3), np.uint8) #final display
-			#canvas[:h, :w, :] = marker_colored #marker for reference
+		#canvas[:h, :w, :] = marker_colored #marker for reference
 
 		success, H = aruco.find_homography_aruco(frame, marker, sigs)
-			# success = False
+		# success = False
 		if not success:
-				# print('homograpy est failed')
+			# print('homograpy est failed')
 			canvas[:h2 , : , :] = np.flip(frame, axis = 1)
 			
 
@@ -63,12 +68,17 @@ class ARNode(Node):
 			
 		augmented = np.flip(augment(frame, obj, transformation, marker), axis = 1) #flipped for better control
 		canvas[:h2 , : , :] = augmented
-		ros_image = self.bridge.cv2_to_imgmsg(canvas, encoding='bgr8')
-		ros_image.header.stamp = self.get_clock().now().to_msg()
-		self.publisher_.publish(ros_image)
+		
+		self.ros_image = self.bridge.cv2_to_imgmsg(canvas, encoding='bgr8')
+		self.ros_image.header = self.header
+		self.ros_image.header.stamp = self.get_clock().now().to_msg()
+		self.timer_ = self.create_timer(1.0, self.timer_callback)
+		
 		#print('published')
 		#cv2.imshow("webcam", canvas)
-
+	def timer_callback(self):
+		self.publisher_.publish(self.ros_image)
+        
 def main(args=None):
     rclpy.init(args=args)
 
