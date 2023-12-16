@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'ar = ar.ar:main'
+           #'ar = ar.ar:main'
+           'pointcloud = ar.pointcloud:main'
         ],
     },
 )
